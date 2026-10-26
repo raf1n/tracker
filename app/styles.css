@@ -212,6 +212,11 @@ input[type="date"] {
   text-align: center;
 }
 
+input[type="date"]::-webkit-datetime-edit {
+  width: 100%;
+  text-align: center;
+}
+
 input[type="date"]::-webkit-date-and-time-value {
   min-width: 0;
   min-height: 1em;
