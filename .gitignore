@@ -1,0 +1,23 @@
+# dependencies
+/node_modules
+
+# next.js build output
+/.next
+/out
+next-env.d.ts
+*.tsbuildinfo
+
+# misc
+.DS_Store
+*.log
+
+# env
+.env
+.env.*.local
+
+# local database
+/data/
+*.sqlite3
+
+# archives
+*.zip
