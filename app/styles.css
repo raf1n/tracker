@@ -635,6 +635,15 @@ input:focus-visible {
   .stepper {
     width: 100%;
   }
+  .f input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .editform .f input {
+    font-size: 16px;
+  }
   .qtyf input {
     flex: 1;
     width: auto;
@@ -663,6 +672,23 @@ input:focus-visible {
   .rowhead,
   .rows {
     min-width: 580px;
+  }
+  .rows li.editing {
+    position: sticky;
+    left: 0;
+    width: calc(100vw - 32px);
+  }
+  .editform {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .editform .f,
+  .editform .note {
+    min-width: 0;
+  }
+  .editacts {
+    margin-left: 0;
   }
   .cols {
     grid-template-columns: 112px 72px 88px 150px auto;
