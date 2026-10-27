@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Milk Tracker",
-    short_name: "Milk",
+    short_name: "Milk Tracker",
     description: "A simple milk delivery log.",
     start_url: "/",
     scope: "/",

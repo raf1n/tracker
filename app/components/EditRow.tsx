@@ -1,10 +1,12 @@
 import type { Delivery } from "@/lib/types";
+import Spinner from "./Spinner";
 
 interface EditRowProps {
   draft: Delivery;
   onDraftChange: (value: Delivery) => void;
   onSave: (e: React.FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
+  saving: boolean;
 }
 
 export default function EditRow({
@@ -12,6 +14,7 @@ export default function EditRow({
   onDraftChange,
   onSave,
   onCancel,
+  saving,
 }: EditRowProps) {
   return (
     <form className="editform" onSubmit={onSave}>
@@ -47,10 +50,11 @@ export default function EditRow({
         />
       </label>
       <div className="editacts">
-        <button className="primary" type="submit">
-          Save
+        <button className="primary" type="submit" disabled={saving}>
+          {saving && <Spinner size={13} />}
+          {saving ? "Saving…" : "Save"}
         </button>
-        <button type="button" onClick={onCancel}>
+        <button type="button" onClick={onCancel} disabled={saving}>
           Cancel
         </button>
       </div>

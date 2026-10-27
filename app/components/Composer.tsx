@@ -1,9 +1,11 @@
 import type { Delivery } from "@/lib/types";
+import Spinner from "./Spinner";
 
 interface ComposerProps {
   form: Delivery;
   onFormChange: (value: Delivery) => void;
   onAdd: (e: React.FormEvent<HTMLFormElement>) => void;
+  busy: boolean;
   price: string | number;
   onPriceChange: (value: string) => void;
   onPriceSave: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -13,6 +15,7 @@ export default function Composer({
   form,
   onFormChange,
   onAdd,
+  busy,
   price,
   onPriceChange,
   onPriceSave,
@@ -86,8 +89,9 @@ export default function Composer({
             onChange={(e) => onFormChange({ ...form, note: e.target.value })}
           />
         </label>
-        <button className="primary" type="submit">
-          Add
+        <button className="primary" type="submit" disabled={busy}>
+          {busy && <Spinner size={13} />}
+          {busy ? "Adding…" : "Add"}
         </button>
       </form>
       <form className="ratebar" onSubmit={onPriceSave}>

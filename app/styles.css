@@ -574,6 +574,79 @@ input[type="date"]::-webkit-date-and-time-value {
   font-size: 13.5px;
 }
 
+/* ---- loading ---- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.spinner {
+  display: inline-block;
+  flex: none;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.65;
+  vertical-align: -2px;
+  animation: spin 0.7s linear infinite;
+}
+
+.primary .spinner,
+.editacts button .spinner,
+.rows .acts button .spinner {
+  margin-right: 6px;
+}
+
+.empty.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.overview.is-loading dd {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+.primary:disabled {
+  background: var(--muted);
+}
+
+.editacts button:disabled,
+.rows .acts button:disabled {
+  opacity: 0.55;
+}
+
+.rows .acts button:disabled:hover {
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.6s;
+  }
+}
+
 /* ---- access ---- */
 
 a:focus-visible,

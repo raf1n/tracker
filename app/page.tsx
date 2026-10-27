@@ -6,6 +6,12 @@ import Composer from "./components/Composer";
 import Register from "./components/Register";
 import type { Delivery, Entry, Summary as SummaryData } from "@/lib/types";
 
+const today = () => {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return local.toISOString().split("T")[0];
+};
+
 export default function Home() {
   const [month, setMonth] = useState("2026-10"),
     [rows, setRows] = useState<Entry[]>([]),
@@ -15,9 +21,12 @@ export default function Home() {
       count: 0,
       daily: [],
     }),
-    [price, setPrice] = useState("100"),
+    [price, setPrice] = useState("900"),
+    [loading, setLoading] = useState(true),
+    [saving, setSaving] = useState<"add" | "edit" | null>(null),
+    [deleting, setDeleting] = useState<number | null>(null),
     [form, setForm] = useState<Delivery>({
-      date: "2026-10-26",
+      date: today(),
       quantity: "",
       note: "",
     }),
@@ -29,14 +38,19 @@ export default function Home() {
     });
 
   const load = async () => {
-    const [a, b, c] = await Promise.all([
-      fetch(`/api/entries?month=${month}`).then((r) => r.json()),
-      fetch(`/api/summary?month=${month}`).then((r) => r.json()),
-      fetch("/api/settings").then((r) => r.json()),
-    ]);
-    setRows(a);
-    setSummary(b);
-    setPrice(String(c.currentPrice));
+    setLoading(true);
+    try {
+      const [a, b, c] = await Promise.all([
+        fetch(`/api/entries?month=${month}`).then((r) => r.json()),
+        fetch(`/api/summary?month=${month}`).then((r) => r.json()),
+        fetch("/api/settings").then((r) => r.json()),
+      ]);
+      setRows(a);
+      setSummary(b);
+      setPrice(String(c.currentPrice));
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -45,13 +59,18 @@ export default function Home() {
 
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    await fetch("/api/entries", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    setForm({ ...form, quantity: "", note: "" });
-    load();
+    setSaving("add");
+    try {
+      await fetch("/api/entries", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      setForm({ date: today(), quantity: "", note: "" });
+      await load();
+    } finally {
+      setSaving(null);
+    }
   }
 
   async function savePrice(e: React.FormEvent<HTMLFormElement>) {
@@ -76,30 +95,46 @@ export default function Home() {
   async function saveEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (editing == null) return;
-    await fetch(`/api/entries/${editing}`, {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(draft),
-    });
-    setEditing(null);
-    load();
+    setSaving("edit");
+    try {
+      await fetch(`/api/entries/${editing}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+      setEditing(null);
+      await load();
+    } finally {
+      setSaving(null);
+    }
   }
 
   async function remove(id: number) {
-    if (confirm("Delete this record?")) {
+    if (!confirm("Delete this record?")) return;
+    setDeleting(id);
+    try {
       await fetch(`/api/entries/${id}`, { method: "DELETE" });
-      load();
+      await load();
+    } finally {
+      setDeleting(null);
     }
   }
 
   return (
-    <main className="app">
+    <main
+      className="app"
+      aria-busy={loading || saving !== null || deleting !== null}
+    >
+      <span className="sr-only" role="status">
+        {loading ? "Loading deliveries" : ""}
+      </span>
       <TopBar month={month} onMonthChange={setMonth} />
-      <Summary summary={summary} />
+      <Summary summary={summary} loading={loading} />
       <Composer
         form={form}
         onFormChange={setForm}
         onAdd={add}
+        busy={saving === "add"}
         price={price}
         onPriceChange={setPrice}
         onPriceSave={savePrice}
@@ -107,8 +142,11 @@ export default function Home() {
       <Register
         rows={rows}
         month={month}
+        loading={loading}
         editingId={editing}
         draft={draft}
+        saving={saving === "edit"}
+        deletingId={deleting}
         onDraftChange={setDraft}
         onEdit={edit}
         onEditSave={saveEdit}
